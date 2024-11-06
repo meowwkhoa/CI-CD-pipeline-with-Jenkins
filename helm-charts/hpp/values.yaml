@@ -1,0 +1,4 @@
+image:
+  repository: quandvrobusto/house-price-prediction-api
+  tag: "1"
+  pullPolicy: Always
