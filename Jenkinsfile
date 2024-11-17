@@ -1,90 +1,57 @@
-// pipeline {
-//     agent any
-
-//     environment{
-//         registry = 'khoatomato/house-price-prediction'
-//         registryCredential = 'dockerhub'
-//     }
-
-//     stages {
-//         stage('Deploy') {
-//             agent {
-//                 kubernetes {
-//                     containerTemplate {
-//                         name 'helm' // Name of the container to be used for helm upgrade
-//                         image 'khoatomato/jenkins:0.0.1' // The image containing helm
-//                         alwaysPullImage true // Always pull image in case of using the same tag
-//                     }
-//                 }
-//             }
-//             steps {
-//                 script {
-//                     container('helm') {
-//                         sh("helm upgrade --install hpp ./helm-charts/hpp --namespace model-serving")
-//                     }
-//                 }
-//             }
-//         }
-//     }
-// }
-
-
 pipeline {
     agent any
 
-    options{
-        // Max number of build logs to keep and days to keep
-        buildDiscarder(logRotator(numToKeepStr: '5', daysToKeepStr: '5'))
-        // Enable timestamp at each job in the pipeline
-        timestamps()
-    }
-
-    environment{
-        registry = 'khoatomato/house-price-prediction'
-        registryCredential = 'dockerhub'
+    environment {
+        registry = '058264163591.dkr.ecr.us-east-1.amazonaws.com/my-docker-repo' // AWS ECR registry
+        awsRegion = 'us-east-1'
     }
 
     stages {
-        stage('Test') {
-            agent {
-                docker {
-                    image 'python:3.8' 
-                }
-            }
+        stage('Checkout') {
             steps {
-                echo 'Testing model correctness..'
-                sh 'pip install -r requirements.txt && pytest'
+                // Checkout the repository
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/meowwkhoa/CI-CD-pipeline-with-Jenkins']])
             }
         }
-        stage('Build') {
+
+        // stage('Test') {
+        //     agent {
+        //         docker {
+        //             image 'python:3.8' 
+        //         }
+        //     }
+        //     steps {
+        //         echo 'Testing FastAPI model correctness..'
+        //         sh 'sudo pip install -r requirements.txt && sudo pytest'  // Install dependencies and run tests
+        //     }
+        // }
+
+        stage('Build Docker Image') {
             steps {
                 script {
-                    echo 'Building image for deployment..'
-                    dockerImage = docker.build registry + ":$BUILD_NUMBER" 
-                    echo 'Pushing image to dockerhub..'
-                    docker.withRegistry( '', registryCredential ) {
-                        dockerImage.push()
-                        dockerImage.push('latest')
-                    }
+                    echo 'Building image for FastAPI app deployment..'
+                    dockerImage = docker.build registry 
+                    dockerImage.tag("$BUILD_NUMBER")
                 }
             }
         }
-        stage('Deploy') {
-            agent {
-                kubernetes {
-                    containerTemplate {
-                        name 'helm' // Name of the container to be used for helm upgrade
-                        image 'khoatomato/jenkins:0.0.1' // The image containing helm
-                        alwaysPullImage true // Always pull image in case of using the same tag
-                    }
-                }
-            }
+
+        stage('Push to ECR') {
             steps {
                 script {
-                    container('helm') {
-                        sh("helm upgrade --install hpp ./deployments/hpp --namespace model-serving")
-                    }
+                    echo 'Pushing image to AWS ECR..'
+                    // Login to AWS ECR
+                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 058264163591.dkr.ecr.us-east-1.amazonaws.com'
+                    // Push the Docker image to ECR
+                    sh 'docker push 058264163591.dkr.ecr.us-east-1.amazonaws.com/my-docker-repo:$BUILD_NUMBER'
                 }
+            }
+        }
+
+        stage('Deploy with Helm') {
+            steps {
+                echo 'Deploying FastAPI app with Helm..'
+                sh "helm upgrade first --install deployment-helmchart --namespace model-serving --set image.tag=$BUILD_NUMBER"  // Deploy using Helm
             }
         }
     }
