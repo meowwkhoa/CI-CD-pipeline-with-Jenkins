@@ -41,9 +41,19 @@ spec:
               containerPort: 30000
               protocol: TCP
           livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
+            httpGet:
+              path: /
+              port: 30000
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              failureThreshold: 3
           readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
+            httpGet:
+              path: /
+              port: 30000
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              failureThreshold: 3
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}
