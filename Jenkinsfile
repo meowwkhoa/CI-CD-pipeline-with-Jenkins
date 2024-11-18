@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    tools {
+        // Use the SonarScanner tool configured in Jenkins
+        sonarScanner 'SonarScanner'
+    }
+
     environment {
         registry = '058264163591.dkr.ecr.us-east-1.amazonaws.com/my-docker-repo' // AWS ECR registry
         awsRegion = 'us-east-1'
