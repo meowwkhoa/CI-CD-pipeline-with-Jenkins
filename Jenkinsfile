@@ -4,6 +4,8 @@ pipeline {
     environment {
         registry = '058264163591.dkr.ecr.us-east-1.amazonaws.com/my-docker-repo' // AWS ECR registry
         awsRegion = 'us-east-1'
+        sonarHostUrl = 'http://54.210.104.75:9000' // Replace with your SonarQube server URL
+        sonarLogin = 'sqa_16a7317aa9bf877431f8d6d55f3177290aa6e78d' // Your SonarQube authentication token
     }
 
     stages {
@@ -25,6 +27,23 @@ pipeline {
         //         sh 'sudo pip install -r requirements.txt && sudo pytest'  // Install dependencies and run tests
         //     }
         // }
+
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    echo 'Running SonarQube analysis...'
+                    withSonarQubeEnv('SonarServer') { // 'SonarQube' is the name you gave to your SonarQube server in Jenkins
+                        sh """
+                        sonar-scanner \
+                          -Dsonar.projectKey=HPP \
+                          -Dsonar.sources=. \
+                          -Dsonar.host.url=${sonarHostUrl} \
+                          -Dsonar.login=${sonarLogin}
+                        """
+                    }
+                }
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
