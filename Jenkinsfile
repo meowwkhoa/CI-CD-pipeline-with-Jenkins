@@ -28,16 +28,14 @@ pipeline {
         //     }
         // }
 
-        node {
-          stage('SCM') {
+        stage('SCM') {
             checkout scm
-          }
-          stage('SonarQube Analysis') {
+        }
+        stage('SonarQube Analysis') {
             def scannerHome = tool 'SonarScanner';
             withSonarQubeEnv() {
               sh "${scannerHome}/bin/sonar-scanner"
             }
-          }
         }
 
         stage('Build Docker Image') {
