@@ -28,21 +28,16 @@ pipeline {
         //     }
         // }
 
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    echo 'Running SonarQube analysis...'
-                    withSonarQubeEnv('SonarServer') { // 'SonarQube' is the name you gave to your SonarQube server in Jenkins
-                        sh """
-                        sonar-scanner \
-                          -Dsonar.projectKey=HPP \
-                          -Dsonar.sources=. \
-                          -Dsonar.host.url=${sonarHostUrl} \
-                          -Dsonar.login=${sonarLogin}
-                        """
-                    }
-                }
+        node {
+          stage('SCM') {
+            checkout scm
+          }
+          stage('SonarQube Analysis') {
+            def scannerHome = tool 'SonarScanner';
+            withSonarQubeEnv() {
+              sh "${scannerHome}/bin/sonar-scanner"
             }
+          }
         }
 
         stage('Build Docker Image') {
