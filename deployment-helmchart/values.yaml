@@ -7,7 +7,7 @@ replicaCount: 1
 
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
-  repository: nginx730335329688.dkr.ecr.us-east-1.amazonaws.com/my-docker-repo-group12
+  repository: 730335329688.dkr.ecr.us-east-1.amazonaws.com/my-docker-repo-group12
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
