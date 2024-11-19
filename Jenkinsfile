@@ -2,10 +2,8 @@ pipeline {
     agent any
 
     environment {
-        registry = '058264163591.dkr.ecr.us-east-1.amazonaws.com/my-docker-repo' // AWS ECR registry
+        registry = '730335329688.dkr.ecr.us-east-1.amazonaws.com/my-docker-repo-group12' // AWS ECR registry
         awsRegion = 'us-east-1'
-        sonarHostUrl = 'http://54.210.104.75:9000' // Replace with your SonarQube server URL
-        sonarLogin = 'sqa_16a7317aa9bf877431f8d6d55f3177290aa6e78d' // Your SonarQube authentication token
     }
 
     stages {
@@ -28,16 +26,6 @@ pipeline {
         //     }
         // }
 
-        stage('SCM') {
-            checkout scm
-        }
-        stage('SonarQube Analysis') {
-            def scannerHome = tool 'SonarScanner';
-            withSonarQubeEnv() {
-              sh "${scannerHome}/bin/sonar-scanner"
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
@@ -53,9 +41,9 @@ pipeline {
                 script {
                     echo 'Pushing image to AWS ECR..'
                     // Login to AWS ECR
-                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 058264163591.dkr.ecr.us-east-1.amazonaws.com'
+                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 730335329688.dkr.ecr.us-east-1.amazonaws.com'
                     // Push the Docker image to ECR
-                    sh 'docker push 058264163591.dkr.ecr.us-east-1.amazonaws.com/my-docker-repo:$BUILD_NUMBER'
+                    sh 'docker push 730335329688.dkr.ecr.us-east-1.amazonaws.com/my-docker-repo-group12:$BUILD_NUMBER'
                 }
             }
         }
