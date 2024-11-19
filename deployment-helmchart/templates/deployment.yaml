@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "deployment-helmchart.fullname" . }}
+  name: {{ .Release.Name }}
   labels:
-    {{- include "deployment-helmchart.labels" . | nindent 4 }}
+    app: {{ .Release.Name }}
+  namespace: model-serving
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: 2
   selector:
     matchLabels:
-      {{- include "deployment-helmchart.selectorLabels" . | nindent 6 }}
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        {{- include "deployment-helmchart.selectorLabels" . | nindent 8 }}
+        app: {{ .Release.Name }}
     spec:
       containers:
-        - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          ports:
-            - containerPort: 30000
+        - name: {{ .Release.Name }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: "{{ .Values.image.pullPolicy }}"
