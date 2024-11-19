@@ -5,9 +5,9 @@ metadata:
   labels:
     {{- include "deployment-helmchart.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.service.type }}
+  type: LoadBalancer
   ports:
-    - port: {{ .Values.service.port }}
+    - port: 80
       targetPort: 30000
       protocol: TCP
       name: http
