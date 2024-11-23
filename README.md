@@ -5,16 +5,30 @@
 
 * Contents:
     * [Introduction](#introduction)
+    * [Pipeline Overview](#pipeline-overview)
     * [Repository Structure](#repository-structure)
     * [Setup Instructions](#setup-instructions)
-    * [Usage](#usage)
+    * [Results](#Results)
 <!-- /code_chunk_output -->
 
 
 
 ## Introduction:
-Using Jenkins to automate the process of building, testing and deploying a microservice application to Docker, Kubernetes for the NT548.P11 course - Fall 2024 semester at University of Information Technology - VNUHCM.
+Using Jenkins to automate the process of building, testing and deploying a microservice application to AWS Elastic Kubernetes Service with SonarQube for the NT548.P11 course - Fall 2024 semester at University of Information Technology - VNUHCM.
 
+## Pipeline Overview:
+This is a simple project I created as a homework for my university course. This repo will help and guide you to build and serve ML model as in a production environment (AWS). I also used tool & technologies to quickly deploy the ML system into production and automate processes during the development and deployment of the ML system.
+
+![pipeline](assets/pipeline_jenkins.png)
+
+- Source control: Git/Github
+- CI/CD: Jenkins
+- Build API: FastAPI
+- Containerize application: Docker
+- Container orchestration system: Kubernetes/K8S
+- K8s's package manager: Helm
+- Deliver infrastructure as code: Cloudformation (eksctl)
+- Cloud platform: Amazon Web Services
 
 ## Repository structure:
 ```txt
@@ -236,64 +250,163 @@ CI-CD-pipeline-with-Jenkins
    ![sonar_build](assets/sonar_build2.png)
    ![sonar_build](assets/sonar_build3.png)
 
-4. **Set up SonarQube inside the Group12-SonarQube instance:**
+4. **Set up automated Jenkins pipeline for building and deploying FastAPI service to AWS EKS:**
+   - We need to install some pre-requisites in the ``Group12-Jenkins`` EC2 instance:
+      - Install AWS CLI:
+      ```bash
+      curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" 
 
-## Usage:
-1. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/meowwkhoa/vpc-terraform-github-actions.git
-   cd vpc-terraform-github-actions
-   ```
+      sudo apt install unzip
 
-2. **Create a New Branch:**
-   ```bash
-   git checkout -b test
-   ```
+      sudo unzip awscliv2.zip  
 
-3. **Make Changes and Push:**
-- Make any necessary changes to the code.
-- Stage and commit the changes:
-   ```bash
-   git add .
-   git commit -m "test"
-   git push origin test
-   ```    
+      sudo ./aws/install
+      ```
+      - Install Helm:
+      ```bash
+      curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
 
-4. **Create a Pull Request:**
-- Go to the repository on GitHub.
-- Create a pull request from the `test` branch to the `main` branch.
+      sudo chmod 700 get_helm.sh
 
-5. **Monitor Deployment:**
-   - The GitHub Action will trigger automatically.
-   - Logs of the GitHub Action automatic deployment.
-   ![Logs](assets/Logs.png)
-   - Monitor the infrastructure changes in the AWS Management Console.
+      sudo ./get_helm.sh
+      ```
+
+      - Install eksctl:
+       ```bash
+      curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+
+      sudo mv /tmp/eksctl /usr/local/bin
+      ```
+
+      - Install Docker:
+      ```bash
+      # Add Docker's official GPG key:
+      sudo apt-get update
+      sudo apt-get install ca-certificates curl
+      sudo install -m 0755 -d /etc/apt/keyrings
+      sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+      sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+      # Add the repository to Apt sources:
+      echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+      $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+      sudo apt-get update
+      ```
+      ```bash
+      sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+      ```
+      ```bash
+      sudo groupadd docker
+
+      sudo usermod -aG docker $USER
+
+      newgrp docker
+      ```
+
+      - Install Kubectl:
+      ```bash
+      curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
+      sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+      ```
+
+      - Jenkins must have proper permission to perform Docker builds:
+      ```bash
+      sudo usermod -a -G docker jenkins
+
+      sudo service jenkins restart
+
+      sudo systemctl daemon-reload
+
+      sudo service docker stop
+      sudo service docker start
+      ```
+      After doing this, Jenkins will restart, and you must login again using the same password to login into Jenkins at the beginning.
+
+      - Install ``Docker`` and ``Docker pipeline`` plug ins in ``Manage Jenkins`` section.
+      ![docker_plugins_install](assets/docker_plugins_install.png)
+
+      - Go to ``Elastic Container Registry`` in AWS Console and ``Create a repository``.
+      ![ecr_create](assets/ecr_create.png)
+      Name the repository and click ``Create``.
+      ![ecr_create_done](assets/ecr_create_done.png)
+
+   - The ``Group12-Jenkins`` EC2 instance must have the permission to create a cluster. We will create IAM Role with Administrator Access.
+      - From ``Group12-Jenkins``, click on ``Security``, then ``Modify IAM role``.
+      ![modify_iam_role](assets/modify_iam_role.png)
+
+      - Click on ``Create new IAM role``
+      ![create_new_role](assets/create_new_role.png)
+
+      - Create a role with ``Administrator Access``.
+      ![create_role](assets/create_role1.png)
+      ![create_role](assets/create_role2.png)
+      ![create_role](assets/create_role3.png)
+
+      - Update IAM role:
+      ![update_role](assets/update_iam_role.png)
+
+   - Switch to Jenkins user and create the cluster with 1 node.
+      ```bash
+      sudo su - jenkins
+      ```
+      ```bash
+      eksctl create cluster --name Group12-eks --region us-east-1 --nodegroup-name my-nodes-g12 --node-type t3.small --managed --nodes 1
+      ```
+      ![create_cluster](assets/create_cluster.png)
+
+   - After the cluster is created, create namespace ``model-serving``.
+   ![create_ns](assets/create_ns.png)
+
+   - We need to make some changes to the Jenkinsfile so that later the pipeline can run properly.
+      - Go to ``Amazon ECR`` to see our repository here. First copy its URI.
+      ![ecr_uri_copy](assets/ecr_uri_copy.png)
+
+      - Paste it in the ``environment`` section in the Jenkinsfile.
+      ![ecr_uri_paste](assets/ecr_uri_paste.png)
+      Also paste it in the ``values.yaml`` file in ``depolyment-helmchart``.
+      ![ecr_uri_helm](assets/ecr_uri_helm.png)
+
+      - Go back to AWS Console, click on the repository and then click on ``View push commands``.
+      ![view_push_commands](assets/view_push_commands.png)
+
+      - The first command is used for authentication purpose, the forth command is used for pushing images to our ECR. Copy both and paste them in the Jenkinsfile.
+      ![ecr_authen](assets/ecr_authen.png)
+      ![ecr_push_command](assets/ecr_push_command.png)
+      ![ecr_paste](assets/ecr_paste.png)
+
    
-   - Our infrastructure ``VPC group 12``.
-   ![VPC](assets/VPC.png)
+   - Go back to Jenkins website, now we create a new item, this time is a pipeline named ``myHelmK8SDeploymentJob``.
+   ![create_pipeline](assets/create_pipeline.png)
+   
+   - To setup this pipeline, go to ``Configuration``, we will link our github repository with this pipeline (for automated building and deploying pipeline).
+      - Config ``Build Triggers``:
+      ![github_hook](assets/github_hook.png)
 
-   - Subnet ``VPC group 12``.
-   ![Subnet](assets/Subnet.png)
+      - Head to the ``Pipeline`` section, click on ``Pipeline script from SCM``, then paste our repository URL in.
+      ![pipeline_config](assets/pipeline_config.png)
+      ![pipeline_config](assets/pipeline_config2.png)
 
-   - Internet Gateway ``IGW group 12``.
-   ![IGW](assets/Internet_gateway.png)
+## Results:
+- After completed the setup stage, when we make some changes to the repository, both two pipeline, one is the deployment, one is SonarQube, will triggers.
 
-   - Public Routable ``Public Routable group 12`` and Private Routable ``Private Routable group 12``.
-   ![Route_table](assets/Route_table.png)
+- Logs of Jenkins when the pipeline triggers:
+![build_demo](assets/build_demo.png)
+![logs_jenkins](assets/logs_jenkins.png)
 
-   - NAT Gateway ``Group-12-NAT-Gateway``.
-   ![NAT](assets/NAT.png)
+- From terminal, we can find the URL to access the service using the command:
+   ```bash
+   kubectl get svc -n model-serving
+   ```
+   ![url_svc](assets/url_svc.png)
 
-   - Elastic IP `Group-12-NAT-EIP`.
-   ![EIP](assets/Elastic_IP.png)
+- Access the FastAPI service using the above URL with ``/docs``.
+![fastapi_result](assets/fastapi_result.png)
+Try it out!
+![fastapi_try](assets/fastapi_try.png)
 
-   - Public Instance `Public Instance group 12` and Private Instance `Private Instance group 12`.
-   ![instances](assets/Instances.png)
-
-   - Public Security Group `Group 12: Public Security Group` and Private Security Group `Group 12: Private Security Group`.
-   ![SG](assets/Security_Group.png)
-
-6. **Running a security scan with Checkov**
-   - The Github Action will trigger automatically.
-   - Logs of the scanning process.
-   ![Checkov](assets/Checkov.png)
+- We can also see that SonarQube will scan the repository every time we make changes.
+![sonar_check](assets/sonar_check.png)
+![sonar_results](assets/sonar_results.png)
