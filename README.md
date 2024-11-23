@@ -89,7 +89,7 @@ CI-CD-pipeline-with-Jenkins
    ![instance_type_t2.medium](assets/instance_type_t2.medium.png)
    ![port9000](assets/port9000.png)
 
-2. **Setting up Jenkins inside the Group12-Jenkins instance:**
+2. **Set up Jenkins inside the Group12-Jenkins instance:**
    - To access the Group12-Jenkins instance via ssh key pair, first we copy its ``Public IPv4 address``.
    ![jenkins_ec2_ip](assets/jenkins_ec2_public_ip.png)
    ![copy_jenkins_ec2_ip](assets/copy_jenkins_ec2_ip.png)
@@ -236,7 +236,7 @@ CI-CD-pipeline-with-Jenkins
    ![sonar_build](assets/sonar_build2.png)
    ![sonar_build](assets/sonar_build3.png)
 
-   
+4. **Set up SonarQube inside the Group12-SonarQube instance:**
 
 ## Usage:
 1. **Clone the Repository:**
