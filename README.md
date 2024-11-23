@@ -24,7 +24,7 @@ This is a simple project I created as a homework for my university course. This 
 - Source control: Git/Github
 - CI/CD: Jenkins
 - Build API: FastAPI
-- Containerize application: Docker
+- Containerize application: Docker, AWS Elastic Container Registry
 - Container orchestration system: Kubernetes/K8S
 - K8s's package manager: Helm
 - Deliver infrastructure as code: Cloudformation (eksctl)
