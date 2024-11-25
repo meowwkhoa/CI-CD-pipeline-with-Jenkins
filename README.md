@@ -30,7 +30,7 @@ This is a simple project I created as a homework for my university course. This 
 - Deliver infrastructure as code: Cloudformation (eksctl)
 - Cloud platform: Amazon Web Services
 
-## Repository structure:
+## Repository Structure:
 ```txt
 CI-CD-pipeline-with-Jenkins
   ├── app
