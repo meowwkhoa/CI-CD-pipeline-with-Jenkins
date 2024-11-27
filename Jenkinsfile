@@ -87,7 +87,7 @@ pipeline {
         stage('Deploy FastAPI') {
             steps {
                 echo 'Deploying FastAPI app with Helm..'
-                sh "helm upgrade --install deployment-helmchart --namespace model-serving --set image.tag=$BUILD_NUMBER"
+                sh "helm upgrade --install first-deployment deployment-helmchart --namespace model-serving --set image.tag=$BUILD_NUMBER"
             }
         }
 
