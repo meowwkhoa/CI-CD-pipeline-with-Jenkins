@@ -103,15 +103,15 @@ pipeline {
             }
         }
 
-        stage('Deploy Grafana') {
-            steps {
-                echo 'Deploying Grafana..'
-                sh '''
-                helm repo add grafana https://grafana.github.io/helm-charts
-                helm repo update
-                helm upgrade --install grafana grafana/grafana --namespace monitoring
-                '''
-            }
-        }
+        // stage('Deploy Grafana') {
+        //     steps {
+        //         echo 'Deploying Grafana..'
+        //         sh '''
+        //         helm repo add grafana https://grafana.github.io/helm-charts
+        //         helm repo update
+        //         helm upgrade --install grafana grafana/grafana --namespace monitoring
+        //         '''
+        //     }
+        // }
     }
 }
