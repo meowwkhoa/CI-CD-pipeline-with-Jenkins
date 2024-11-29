@@ -97,7 +97,7 @@ pipeline {
                 sh '''
                 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
                 helm repo update
-                helm upgrade --install nginx-ingress ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace
+                helm upgrade --install nginx-ingress ./nginx-ingress --namespace ingress-nginx --create-namespace
                 '''
             }
         }

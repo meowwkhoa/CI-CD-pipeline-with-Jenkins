@@ -1,0 +1,42 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+  namespace: ingress-nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: fastapi.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: fastapi-service
+            namespace: model-serving
+            port:
+              number: 80
+  - host: prometheus.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus-server
+            namespace: monitoring
+            port:
+              number: 80
+  - host: grafana.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana
+            namespace: monitoring
+            port:
+              number: 80
