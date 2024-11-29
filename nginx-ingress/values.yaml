@@ -58,20 +58,20 @@ service:
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
   hosts:
-    - host: chart-example.local
+    - host: a99a27eff13d04c379ada5594c365f70-446345079.us-east-1.elb.amazonaws.com
       paths:
-        - path: /
-          pathType: ImplementationSpecific
+        - path: /fastapi
+          pathType: Prefix
+        - path: /prometheus
+          pathType: Prefix
+        - path: /grafana
+          pathType: Prefix
   tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
