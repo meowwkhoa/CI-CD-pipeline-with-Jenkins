@@ -28,7 +28,7 @@ spec:
             name: prometheus-server
             namespace: monitoring
             port:
-              number: 80
+              number: 9090
   - host: a99a27eff13d04c379ada5594c365f70-446345079.us-east-1.elb.amazonaws.com
     http:
       paths:
@@ -39,4 +39,4 @@ spec:
             name: grafana
             namespace: monitoring
             port:
-              number: 80
+              number: 3000
