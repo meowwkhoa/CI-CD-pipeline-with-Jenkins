@@ -10,7 +10,7 @@ spec:
   - host: a99a27eff13d04c379ada5594c365f70-446345079.us-east-1.elb.amazonaws.com
     http:
       paths:
-      - path: /
+      - path: /fastapi
         pathType: Prefix
         backend:
           service:
@@ -21,7 +21,7 @@ spec:
   - host: a99a27eff13d04c379ada5594c365f70-446345079.us-east-1.elb.amazonaws.com
     http:
       paths:
-      - path: /
+      - path: /prometheus
         pathType: Prefix
         backend:
           service:
@@ -32,7 +32,7 @@ spec:
   - host: a99a27eff13d04c379ada5594c365f70-446345079.us-east-1.elb.amazonaws.com
     http:
       paths:
-      - path: /
+      - path: /grafana
         pathType: Prefix
         backend:
           service:
