@@ -108,7 +108,7 @@ pipeline {
                 sh '''
                 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
                 helm repo update
-                helm upgrade --install prometheus prometheus-community/prometheus --namespace monitoring --create-namespace
+                helm upgrade --install prometheus ./prometheus --namespace monitoring --create-namespace
                 '''
             }
         }
@@ -119,7 +119,7 @@ pipeline {
                 sh '''
                 helm repo add grafana https://grafana.github.io/helm-charts
                 helm repo update
-                helm upgrade --install grafana grafana/grafana --namespace monitoring
+                helm upgrade --install grafana ./grafana --namespace monitoring
                 '''
             }
         }

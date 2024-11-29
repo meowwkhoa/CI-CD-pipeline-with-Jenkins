@@ -14,7 +14,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: fastapi-service
+            name: first-deployment-helmchart
             namespace: model-serving
             port:
               number: 80
