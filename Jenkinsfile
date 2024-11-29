@@ -61,7 +61,7 @@ pipeline {
     agent any
 
     environment {
-        registry = '730335374737.dkr.ecr.us-east-1.amazonaws.com/group12'
+        registry = '891377344017.dkr.ecr.us-east-1.amazonaws.com/group12'
         awsRegion = 'us-east-1'
     }
 
@@ -78,8 +78,8 @@ pipeline {
                     echo 'Building and pushing FastAPI app image..'
                     dockerImage = docker.build registry 
                     dockerImage.tag("$BUILD_NUMBER")
-                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 730335374737.dkr.ecr.us-east-1.amazonaws.com'
-                    sh 'docker push 730335374737.dkr.ecr.us-east-1.amazonaws.com/group12:$BUILD_NUMBER'
+                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 891377344017.dkr.ecr.us-east-1.amazonaws.com'
+                    sh 'docker push 891377344017.dkr.ecr.us-east-1.amazonaws.com/group12:$BUILD_NUMBER'
                 }
             }
         }
