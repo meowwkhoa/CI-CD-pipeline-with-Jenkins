@@ -91,27 +91,5 @@ pipeline {
             }
         }
 
-
-        stage('Deploy Prometheus') {
-            steps {
-                echo 'Deploying Prometheus..'
-                sh '''
-                helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-                helm repo update
-                helm upgrade --install stable prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace
-                '''
-            }
-        }
-
-        // stage('Deploy Grafana') {
-        //     steps {
-        //         echo 'Deploying Grafana..'
-        //         sh '''
-        //         helm repo add grafana https://grafana.github.io/helm-charts
-        //         helm repo update
-        //         helm upgrade --install grafana grafana/grafana --namespace monitoring
-        //         '''
-        //     }
-        // }
     }
 }

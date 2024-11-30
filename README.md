@@ -19,7 +19,7 @@ Using Jenkins to automate the process of building, testing and deploying a micro
 ## Pipeline Overview:
 This is a simple project I created as a homework for my university course. This repo will help and guide you to build and serve ML model as in a production environment (AWS). I also used tool & technologies to quickly deploy the ML system into production and automate processes during the development and deployment of the ML system.
 
-![pipeline](assets/pipeline_jenkins.png)
+![pipeline](assets/pipeline.png)
 
 - Source control: Git/Github
 - CI/CD: Jenkins
@@ -28,6 +28,7 @@ This is a simple project I created as a homework for my university course. This 
 - Container orchestration system: Kubernetes/K8S
 - K8s's package manager: Helm
 - Deliver infrastructure as code: Cloudformation (eksctl)
+- Monitoring: Prometheus, Grafana
 - Cloud platform: Amazon Web Services
 
 ## Repository Structure:
@@ -388,6 +389,37 @@ CI-CD-pipeline-with-Jenkins
       - Head to the ``Pipeline`` section, click on ``Pipeline script from SCM``, then paste our repository URL in.
       ![pipeline_config](assets/pipeline_config.png)
       ![pipeline_config](assets/pipeline_config2.png)
+
+5. **Set up monitoring services:**
+
+   - From terminal, type the following commands to setup Prometheus, Grafana on our cluster:
+      ```bash
+      helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+      helm repo update
+      helm upgrade --install stable prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace
+      ```
+
+   - Then, to expose Prometheus and Grafana to the external world, change the type from ``ClusterIP`` to ``LoadBalancer``.
+   ![monitoring_services](assets/monitoring_services.png)
+   
+   - Now we can access Prometheus and Grafana via external IP.
+   ![access_prometheus](assets/access_prometheus.png)
+   Print the password of Grafana to access it.
+   ![pass_grafana](assets/pass_grafana.png)
+   ![grafana](assets/grafana.png)
+   Login to Grafana.
+   ![login_grafana](assets/login_grafana.png)
+
+   - Now we can import dashboards to Grafana, the datasource is Prometheus.
+   ![connections](assets/connections.png)
+   Default data source: Prometheus.
+   ![data_sources](assets/data_sources.png)
+   Import dashboard number ``15760``: Kubernetes/Views/Pods
+   ![import_dashboard](assets/import_dashboard.png)
+   Enjoy the dashboards!
+   ![dashboard1](assets/dashboard1.png)
+   ![dashboard2](assets/dashboard2.png)
+
 
 ## Results:
 - After completed the setup stage, when we make some changes to the repository, both two pipeline, one is the deployment, one is SonarQube, will triggers.
